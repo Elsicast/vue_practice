@@ -18,9 +18,15 @@ import {
   Submenu,
   Switch,
   Breadcrumb,
-  BreadcrumbItem
+  BreadcrumbItem,
+  Card,
+  Row,
+  Col
 } from 'element-ui'
 
+Vue.use(Row)
+Vue.use(Col)
+Vue.use(Card)
 Vue.use(Button)
 Vue.use(Form)
 Vue.use(FormItem)

@@ -15,7 +15,7 @@
         active-text-color="#409EFF" :unique-opened="true"
         :router="true" :default-active="activepath">
         <!-- 一级菜单 -->
-          <el-submenu :index="item.path" v-for="item in menulist" :key="item.id">
+          <el-submenu :index="item.id+''" v-for="item in menulist" :key="item.id">
             <template slot="title">
               <i :class="iconsobj[item.id]"></i>
               <span>{{item.authName}}</span>
@@ -51,8 +51,8 @@ export default {
     this.activepath = window.sessionStorage.getItem('activePath')
   },
   updated () {
-    this.activepath = window.sessionStorage.getItem('activePath').replace(/\//g, '')
-    // console.log(this.activepath)
+    this.activepath = window.sessionStorage.getItem('activePath')
+    console.log(this.activepath)
   },
   data () {
     return {
