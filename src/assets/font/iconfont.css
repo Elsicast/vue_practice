@@ -5,14 +5,34 @@
 
 .iconfont {
   font-family: "iconfont" !important;
-  font-size: 16px;
+  font-size: 26px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-dingdanguanli:before {
+  content: "\e65c";
+}
+
+.icon-yonghuguanli:before {
+  content: "\e517";
+}
+
+.icon-shangpinguanli:before {
+  content: "\e60c";
+}
+
+.icon-shujutongji:before {
+  content: "\e74e";
+}
+
 .icon-mima:before {
   content: "\e630";
+}
+
+.icon-quanxianguanli:before {
+  content: "\e860";
 }
 
 .icon-yonghu:before {
