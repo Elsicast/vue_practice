@@ -4,16 +4,16 @@
             <div class="avatar-box">
                 <img src="../assets/logo.png">
             </div>
-            <el-form label-width="0px" class="login_form">
-                <el-form-item >
-                    <el-input placeholder="请输入账号" v-model="user" prefix-icon="el-icon-user"></el-input>
+            <el-form ref="loginFormRef" :model="loginform" :rules="rules" label-width="0px" class="login_form">
+                <el-form-item prop="username" >
+                    <el-input placeholder="请输入账号" v-model="loginform.username" prefix-icon="iconfont icon-yonghu"></el-input>
                 </el-form-item>
-                <el-form-item >
-                    <el-input placeholder="请输入密码" v-model="pass" ></el-input>
+                <el-form-item prop="password" >
+                    <el-input placeholder="请输入密码" v-model="loginform.password" prefix-icon="iconfont icon-mima" show-password></el-input>
                 </el-form-item>
                 <el-form-item class="btn">
-                    <el-button type="primary">登陆</el-button>
-                    <el-button type="info">重置</el-button>
+                    <el-button type="primary" @click="submitForm('loginFormRef')">登陆</el-button>
+                    <el-button type="info" @click="resetForm('loginFormRef')">重置</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -22,7 +22,47 @@
 
 <script>
 export default {
+  data () {
+    return {
+      loginform: {
+        username: 'admin',
+        password: '123456'
+      },
+      rules: {
+        username: [
+          { required: true, message: '输入的账号为空！', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '输入的密码为空！', trigger: 'blur' },
+          { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
+        ]
+      }
+    }
+  },
+  methods: {
+    submitForm (formName) {
+      this.$refs[formName].validate(async (valid) => {
+        if (!valid) return
+        try {
+          const { data: res } = await this.$http.post('login', this.loginform)
+          if (res.meta.status !== 200) return this.$message.error('用户名或密码错误！')
+          this.$message.success('登录成功！')
+          console.log(res)
+          window.sessionStorage.setItem('token', res.data.token)
+          this.$router.push('/home')
+        } catch (error) {
+          this.$message.error('网络出了点小问题哦！')
+        }
+      })
+    },
+    resetForm (formName) {
+      console.log(this)
+      this.$refs[formName].resetFields()
+    }
+  }
 }
+
 </script>
 
 <style lang="less" scoped>
