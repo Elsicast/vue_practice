@@ -33,28 +33,37 @@ export default {
   },
   watch: {
     ipAddress: { // 双向数据绑定的value
-      immediate: true,
       handler: function (newVal, oldVal) {
+        // let str = ''
+        // for (const i in this.ipAddress) {
+        //   str += this.formatter(this.ipAddress[i].value)
+        // }
+        // if (str === '000000000000') {
+        //   str = ''
+        // }
         let str = ''
-        for (const i in this.ipAddress) {
-          str += this.formatter(this.ipAddress[i].value)
-        }
-        if (str === '000000000000') {
-          str = ''
-        }
-        this.$emit('input', str)
-        console.log(newVal)
-        this.ipAddress[0].value = newVal[0].value
-        this.ipAddress[1].value = newVal[1].value
-        this.ipAddress[2].value = newVal[2].value
-        this.ipAddress[3].value = newVal[3].value
+        str = newVal[0].value + newVal[1].value + newVal[2].value + newVal[3].value
+        this.$emit('update:value', str)
+        // console.log(newVal)
       },
       deep: true
+    },
+    value: {
+      handler: function (newval, oldval) {
+        // console.log(newval)
+        this.ipAddress[0].value = newval.substring(0, 3)
+        this.ipAddress[1].value = newval.substring(3, 6)
+        this.ipAddress[2].value = newval.substring(6, 9)
+        this.ipAddress[3].value = newval.substring(9, 12)
+      }
     }
   },
   // updated () {
   //   console.log(this.ipAddress)
   // },
+  computed: {
+
+  },
   methods: {
     // 格式化补零方法
     formatter (val) {

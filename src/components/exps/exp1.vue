@@ -33,15 +33,15 @@
       </el-form>
       <div class="buttons">
         <el-button icon="el-icon-plus" @click="showDialog">添加</el-button>
-        <el-button icon="iconfont icon-weibiaoti518">启用</el-button>
-        <el-button icon="iconfont icon-tingzhi">停用</el-button>
-        <el-button icon="el-icon-delete">批量删除</el-button>
+        <el-button icon="iconfont icon-weibiaoti518" @click="startSelection">启用</el-button>
+        <el-button icon="iconfont icon-tingzhi" @click="stopSelection">停用</el-button>
+        <el-button icon="el-icon-delete" @click="deleteSelection">批量删除</el-button>
         <el-button icon="el-icon-download">导出</el-button>
         <el-button icon="el-icon-upload2">导入</el-button>
       </div>
       <div></div>
       <div>
-        <el-button type="primary" icon="el-icon-search" class="searchButton">搜索</el-button>
+        <el-button type="primary" icon="el-icon-search" class="searchButton" @click="searchdata">搜索</el-button>
       </div>
     </el-header>
     <el-main height="580px">
@@ -54,16 +54,24 @@
         <el-table-column prop="creator" label="创建人"></el-table-column>
         <el-table-column sortable prop="createTime" label="创建时间"></el-table-column>
         <el-table-column sortable prop="latest" label="最后修改时间"></el-table-column>
-        <el-table-column label="操作"></el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-tooltip content="编辑" effect="dark" placement="right">
+              <el-button icon="el-icon-setting" @click="editData(scope.row)" class="editButton" type="primary">
+              </el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
       </el-table>
     </el-main>
     <el-footer id="footer1">
       <el-pagination class="pagination1" @size-change="handleSizeChange" @current-change="handleCurrentChange"
         :current-page="querypageinfo.pagenum" :page-sizes="[10, 20, 50, 100]" :page-size="querypageinfo.pagesize"
-        layout="total, sizes, prev, pager, next, jumper" :total="1">
+        layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </el-footer>
-    <Dialog :msg="addDialogVisible" ref="Dialog"></Dialog>
+    <Dialog @reloadRuleData="createRule" :msg="addDialogVisible" ref="Dialog"></Dialog>
+    <editdialog @reloadRuleData="editRule" :msg='editRuleData' ref="editDialog"></editdialog>
   </el-container>
 
 </template>
@@ -71,21 +79,29 @@
 <script>
 // import ExportExcel from './ExportExcel'
 import Dialog from '../Dialog.vue'
-import { ruleData, bugClass } from '../../assets/js/data.js'
+import editdialog from '../editDialog.vue'
+import { ruleData, bugClass, obj } from '../../assets/js/data.js'
 export default {
-  updated () {
-  },
+  // updated () {
+  //   this.getTotal()
+  //   this.getRuleData()
+  // },
   components: {
-    Dialog
+    Dialog,
+    editdialog
     // ExportExcel
   },
-  mounted () {
-    this.getRuleData()
+  created () {
     this.getBugList()
+    this.getTotal()
+    this.getSearchData()
+    this.getRuleData()
   },
   data () {
     return {
+      total: 1,
       ruleData: [],
+      searchData: [],
       addDialogVisible: false,
       querypageinfo: {
         query: '',
@@ -110,10 +126,125 @@ export default {
           value: '2',
           label: '停用'
         }
-      ]
+      ],
+      editRuleData: {}
     }
   },
   methods: {
+    editRule () {
+      this.search()
+      this.getRuleData()
+      this.$message.success('更改成功！')
+    },
+    editData (ruleinfo) {
+      this.editRuleData = ruleinfo
+      this.$refs.editDialog.AaddDialogVisible()
+    },
+    createRule () {
+      this.search()
+      this.getRuleData()
+      this.$message.success('新建成功！')
+    },
+    search () {
+      this.searchData = []
+      this.total = 0
+      this.querypageinfo.pagenum = 1
+      const query = this.queryinfo
+      for (const item of ruleData) {
+        if (query.ruleName === '' || item.ruleName.includes(query.ruleName)) {
+          if (query.bugClass === '' || item.bugClass.includes(this.bugList[parseInt(query.bugClass) - 1].label)) {
+            if (query.status === '0' || item.status === query.status) {
+              if (query.creator === '' || item.creator.includes(query.creator)) {
+                this.total++
+                // console.log(item)
+                this.searchData.push(item)
+              }
+            }
+          }
+        }
+      }
+    },
+    searchdata (evt) {
+      this.search()
+      this.getRuleData()
+      // console.log(this.ruleData)
+      this.$message.success('搜索成功！')
+      let target = evt.target
+      if (target.nodeName === 'SPAN') {
+        target = evt.target.parentNode
+      }
+      target.blur()
+    },
+    deleteSelection (evt) {
+      const that = this
+      if (this.multipleSelection === '' || this.multipleSelection === undefined) {
+        this.$message.warning('未选中！请重新选择')
+        return
+      }
+      const selection = that.multipleSelection
+      selection.forEach(function (item) {
+        // console.log(item)
+        const id = parseInt(item.ruleID)
+        ruleData.splice(id - 1, 1)
+      })
+      obj.nowid = obj.nowid - selection.length
+      // console.log(obj.nowid)
+      for (let i = 0; i < ruleData.length; i++) {
+        ruleData[i].ruleID = (i + 1).toString()
+      }
+      this.search()
+      this.getRuleData()
+      this.getTotal()
+      this.querypageinfo.pagenum = 1
+      this.$message.success('删除成功！')
+      let target = evt.target
+      if (target.nodeName === 'SPAN') {
+        target = evt.target.parentNode
+      }
+      target.blur()
+    },
+    startSelection (evt) {
+      const that = this
+      if (this.multipleSelection === '' || this.multipleSelection === undefined) {
+        this.$message.warning('未选中！请重新选择')
+        return
+      }
+      const selection = that.multipleSelection
+      selection.forEach(function (item) {
+        // console.log(item)
+        const id = parseInt(item.ruleID)
+        ruleData[id - 1].status = '1'
+      })
+      this.search()
+      this.getRuleData()
+      this.$message.success('启动成功！')
+      let target = evt.target
+      if (target.nodeName === 'SPAN') {
+        target = evt.target.parentNode
+      }
+      target.blur()
+    },
+    stopSelection (evt) {
+      const that = this
+      if (this.multipleSelection === '' || this.multipleSelection === undefined) {
+        this.$message.warning('未选中！请重新选择')
+        return
+      }
+      const selection = that.multipleSelection
+      selection.forEach(function (item) {
+        // console.log(item)
+        const id = parseInt(item.ruleID)
+        ruleData[id - 1].status = '2'
+      })
+      this.search()
+      this.getRuleData()
+      this.$message.success('停止成功！')
+      let target = evt.target
+      if (target.nodeName === 'SPAN') {
+        target = evt.target.parentNode
+      }
+      target.blur()
+    },
     showDialog () {
       this.$refs.Dialog.AaddDialogVisible()
     },
@@ -127,33 +258,55 @@ export default {
       }
     },
     handleSelectionChange (val) {
+      // console.log(this.multipleTable)
       this.multipleSelection = val
+    },
+    getSearchData () {
+      this.searchData = ruleData
     },
     handleSizeChange (newSize) {
       // console.log(newSize)
-      this.queryinfo.pagesize = newSize
+      this.querypageinfo.pagesize = newSize
+      this.getRuleData()
+      // this.getRuleData()
       // this.getuserlist()
     },
     handleCurrentChange (newpage) {
-      this.queryinfo.pagenum = newpage
+      this.querypageinfo.pagenum = newpage
+      this.getRuleData()
+      // this.getRuleData()
       // this.getuserlist()
     },
     getRuleData () {
-      this.ruleData = ruleData
+      this.ruleData = []
+      const pagesize = this.querypageinfo.pagesize
+      const pagenum = this.querypageinfo.pagenum
+      const startid = pagesize * (pagenum - 1)
+      console.log(this.total)
+      const stopid = ((pagesize * pagenum <= this.total) ? (pagesize * pagenum) : this.total)
+      // console.log(stopid)
+      for (let i = startid; i < stopid; i++) {
+        // console.log(ruleData[i])
+        this.ruleData.push(this.searchData[i])
+      }
+      // this.ruleData = ruleData
     },
     getBugList () {
       this.bugList = bugClass
+    },
+    getTotal () {
+      this.total = obj.nowid - 1
     }
+    // handleSizeChange (newSize) {
+    //   // console.log(newSize)
+    //   this.queryinfo.pagesize = newSize
+    //   this.getuserlist()
+    // },
+    // handleCurrentChange (newpage) {
+    //   this.queryinfo.pagenum = newpage
+    //   this.getuserlist()
+    // }
   }
-  // handleSizeChange (newSize) {
-  //   // console.log(newSize)
-  //   this.queryinfo.pagesize = newSize
-  //   this.getuserlist()
-  // },
-  // handleCurrentChange (newpage) {
-  //   this.queryinfo.pagenum = newpage
-  //   this.getuserlist()
-  // }
 }
 </script>
 
@@ -246,5 +399,14 @@ export default {
       height: 7px;
       left: 4px;
     }
+}
+.editButton {
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin: 0 0;
 }
 </style>

@@ -12,7 +12,7 @@
             <el-input v-model="addRule.ruleName" width="200px" clearable></el-input>
           </el-form-item>
           <el-form-item label="启动状态" prop="status">
-            <el-switch v-model="addRule.status" :active-value="1" :inactive-value="2"></el-switch>
+            <el-switch v-model="addRule.status" active-value="1" inactive-value="2"></el-switch>
           </el-form-item>
           <el-form-item label="告警分类" prop="bugClass">
             <el-select v-model="addRule.bugClass">
@@ -26,13 +26,13 @@
         </div>
         <div v-show="step ==1" class="morerule">
           <el-form-item label="源IP" prop="rootIP">
-            <ipAddressInput v-model="addRule.rootIP" ref="rootIP"></ipAddressInput>
+            <el-input v-model="addRule.rootIP" width="200px" clearable></el-input>
           </el-form-item>
           <el-form-item label="源端口" prop="rootPort">
             <el-input v-model="addRule.rootPort" width="200px" clearable></el-input>
           </el-form-item>
           <el-form-item label="目的IP" prop="destIP">
-            <ipAddressInput v-model="addRule.destIP" ref="destIP"></ipAddressInput>
+            <el-input v-model="addRule.destIP" width="200px" clearable></el-input>
           </el-form-item>
           <el-form-item label="目的端口" prop="destPort">
             <el-input v-model="addRule.destPort" width="200px" clearable></el-input>
@@ -54,7 +54,6 @@
 
 <script>
 // import Vue from 'vue'
-import ipAddressInput from '../components/input/ipAddressInput.vue'
 import { ruleData, bugClass, obj } from '../assets/js/data.js'
 export default {
   props: ['msg'],
@@ -63,7 +62,6 @@ export default {
     this.getcreator()
   },
   components: {
-    ipAddressInput
   },
   data () {
     var checkNum = (rule, value, cb) => {
@@ -73,13 +71,13 @@ export default {
       }
       cb(new Error('请输入合法的端口号'))
     }
-    // var checkIP = (rule, value, cb) => {
-    //   const regIP = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
-    //   if (regIP.test(value)) {
-    //     return cb()
-    //   }
-    //   cb(new Error('请输入合法的IP'))
-    // }
+    var checkIP = (rule, value, cb) => {
+      const regIP = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
+      if (regIP.test(value)) {
+        return cb()
+      }
+      cb(new Error('请输入合法的IP'))
+    }
     return {
       addFormRules: {
         ruleName: [
@@ -89,14 +87,16 @@ export default {
           { required: true, message: '请选择告警分类', trigger: 'blur' }
         ],
         rootIP: [
-          { required: true, trigger: 'blur' }
+          { required: true, message: '请输入源IP', trigger: 'blur' },
+          { validator: checkIP, trigger: 'blur' }
         ],
         rootPort: [
           { required: true, message: '请输入源端口', trigger: 'blur' },
           { validator: checkNum, trigger: 'blur' }
         ],
         destIP: [
-          { required: true, trigger: 'blur' }
+          { required: true, message: '请输入目的IP', trigger: 'blur' },
+          { validator: checkIP, trigger: 'blur' }
         ],
         destPort: [
           { required: true, message: '请输入目的端口', trigger: 'blur' },
@@ -108,6 +108,7 @@ export default {
       },
       addDialogVisible: false,
       step: 0,
+      hasNew: false,
       addRule: {
         ruleID: '',
         status: '1',
@@ -130,12 +131,13 @@ export default {
       this.addDialogVisible = true
     },
     next (evt) {
-      if (this.step++ > 1) this.step = 0
       let target = evt.target
       if (target.nodeName === 'SPAN') {
         target = evt.target.parentNode
       }
       target.blur()
+      this.$refs.addRule.validateField()
+      if (this.step++ > 1) this.step = 0
     },
     prev (evt) {
       if (this.step-- < 0) this.step = 1
@@ -211,11 +213,13 @@ export default {
           destPort: this.addRule.destPort,
           command: this.addRule.command
         }
+        console.log(obj.rootIP)
         ruleData.push(obj)
         // Vue.set(ruleData, this.addRule)
         // this.$forceUpdate()
         this.addDialogVisible = false
         this.rst1()
+        this.$emit('reloadRuleData')
       }
       )
     }
