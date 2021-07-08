@@ -1,23 +1,24 @@
 <template>
-    <div class="login_container">
-        <div class="login_box">
-            <div class="avatar-box">
-                <img src="../assets/logo.png">
-            </div>
-            <el-form ref="loginFormRef" :model="loginform" :rules="rules" label-width="0px" class="login_form">
-                <el-form-item prop="username" >
-                    <el-input placeholder="请输入账号" v-model="loginform.username" prefix-icon="iconfont icon-yonghu"></el-input>
-                </el-form-item>
-                <el-form-item prop="password" >
-                    <el-input placeholder="请输入密码" v-model="loginform.password" prefix-icon="iconfont icon-mima" show-password></el-input>
-                </el-form-item>
-                <el-form-item class="btn">
-                    <el-button type="primary" @click="submitForm('loginFormRef')">登陆</el-button>
-                    <el-button type="info" @click="resetForm('loginFormRef')">重置</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
+  <div class="login_container">
+    <div class="login_box">
+      <div class="avatar-box">
+        <img src="../assets/logo.png">
+      </div>
+      <el-form ref="loginFormRef" :model="loginform" :rules="rules" label-width="0px" class="login_form">
+        <el-form-item prop="username">
+          <el-input placeholder="请输入账号" v-model="loginform.username" prefix-icon="iconfont icon-yonghu"></el-input>
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input placeholder="请输入密码" v-model="loginform.password" prefix-icon="iconfont icon-mima" show-password>
+          </el-input>
+        </el-form-item>
+        <el-form-item class="btn">
+          <el-button type="primary" @click="submitForm('loginFormRef')">登陆</el-button>
+          <el-button type="info" @click="resetForm('loginFormRef')">重置</el-button>
+        </el-form-item>
+      </el-form>
     </div>
+  </div>
 </template>
 
 <script>
@@ -50,6 +51,7 @@ export default {
           this.$message.success('登录成功！')
           console.log(res)
           window.sessionStorage.setItem('token', res.data.token)
+          window.sessionStorage.setItem('username', res.data.username)
           this.$router.push('/home')
         } catch (error) {
           this.$message.error('网络出了点小问题哦！')

@@ -1,14 +1,22 @@
 @font-face {
   font-family: "iconfont"; /* Project id  */
   src: url('iconfont.ttf') format('truetype');
+  src: url('iconfont2.ttf') format('truetype');
 }
 
 .iconfont {
   font-family: "iconfont" !important;
-  font-size: 26px;
+  font-size: 14px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-weibiaoti518:before {
+  content: "\e615";
+}
+
+.icon-tingzhi:before {
+  content: "\e611";
 }
 
 .icon-dingdanguanli:before {

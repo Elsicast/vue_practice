@@ -21,9 +21,26 @@ import {
   BreadcrumbItem,
   Card,
   Row,
-  Col
+  Col,
+  Table,
+  TableColumn,
+  Tooltip,
+  Pagination,
+  Dialog,
+  Select,
+  Option,
+  Footer,
+  Steps,
+  Step
 } from 'element-ui'
 
+Vue.use(Steps)
+Vue.use(Step)
+Vue.use(Dialog)
+Vue.use(Pagination)
+Vue.use(Tooltip)
+Vue.use(Table)
+Vue.use(TableColumn)
 Vue.use(Row)
 Vue.use(Col)
 Vue.use(Card)
@@ -42,7 +59,10 @@ Vue.use(RadioButton)
 Vue.use(MenuItem)
 Vue.use(MenuItemGroup)
 Vue.use(Submenu)
+Vue.use(Select)
 Vue.use(Switch)
 Vue.use(Breadcrumb)
 Vue.use(BreadcrumbItem)
+Vue.use(Option)
+Vue.use(Footer)
 Vue.prototype.$message = Message
