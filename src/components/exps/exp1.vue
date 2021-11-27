@@ -33,7 +33,8 @@
       </el-form>
       <div class="buttons">
         <el-button icon="el-icon-plus" @click="showDialog">添加</el-button>
-        <el-button icon="iconfont icon-weibiaoti518" @click="startSelection">启用</el-button>
+        <el-button icon=".
+        confont icon-weibiaoti518" @click="startSelection">启用</el-button>
         <el-button icon="iconfont icon-tingzhi" @click="stopSelection">停用</el-button>
         <el-button icon="el-icon-delete" @click="deleteSelection">批量删除</el-button>
         <el-button icon="el-icon-download">导出</el-button>
